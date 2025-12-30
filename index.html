@@ -4,65 +4,59 @@
   <meta charset="UTF-8" />
   <title>Weather App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
 <header class="header">
+  <button id="menuBtn">☰</button>
   <h1>🌤 Weather</h1>
   <p class="subtitle">Real-time local & global weather</p>
 </header>
 
 <div class="app-layout">
 
-  <!-- LEFT SIDEBAR -->
   <aside class="sidebar">
-    <input
-  type="text"
-  id="countrySearch"
-  placeholder="Search country..."
-  class="country-search"
-/>
+    <input id="countrySearch" class="country-search" placeholder="Search country..." />
 
-    <h3>Countries</h3>
+    <div class="favorites">
+      <h4>⭐ Favorites</h4>
+      <ul id="favoriteList"></ul>
+    </div>
+
     <ul id="countryList"></ul>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="main-content">
-
-    <!-- TOP COUNTRIES -->
     <section class="top-countries-wrapper">
       <h3>Around the World</h3>
-      <div class="top-countries" id="topCountries"></div>
+      <div id="topCountries" class="top-countries"></div>
     </section>
 
-    <!-- SEARCH -->
     <section class="card search-card">
-      <input type="text" id="locationInput" placeholder="Search city or country..." />
+      <input id="locationInput" placeholder="Search city..." />
       <button id="searchBtn">Search</button>
     </section>
 
-    <!-- WEATHER CARD -->
-    <section class="card weather-card" id="weatherCard">
+    <section id="weatherCard" class="card weather-card">
       <h2 id="location">---</h2>
       <div class="temperature"><span id="temp">--</span>°C</div>
       <p id="condition">---</p>
       <p>Feels Like: <span id="feelsLike">--</span>°C</p>
       <p>Wind: <span id="wind">--</span></p>
-      <p class="aqi" id="aqi">AQI: --</p>
-      <p class="time" id="time">---</p>
+      <p id="aqi" class="aqi">AQI: --</p>
+      <p id="time" class="time">---</p>
     </section>
-
   </main>
 </div>
 
-<!-- LOCATION MESSAGE -->
 <div id="locationMessage" class="location-message">
   Location access is turned off. Showing default weather.
 </div>
 
 <script src="script.js"></script>
 </body>
-
 </html>

@@ -1,0 +1,15 @@
+[
+  { "name": "Afghanistan", "capital": "Kabul", "code": "AF" },
+  { "name": "Albania", "capital": "Tirana", "code": "AL" },
+  { "name": "Algeria", "capital": "Algiers", "code": "DZ" },
+  { "name": "Argentina", "capital": "Buenos Aires", "code": "AR" },
+  { "name": "Australia", "capital": "Canberra", "code": "AU" },
+  { "name": "Austria", "capital": "Vienna", "code": "AT" },
+  { "name": "Bangladesh", "capital": "Dhaka", "code": "BD" },
+  { "name": "Belgium", "capital": "Brussels", "code": "BE" },
+  { "name": "Brazil", "capital": "Brasília", "code": "BR" },
+  { "name": "Canada", "capital": "Ottawa", "code": "CA" },
+  { "name": "China", "capital": "Beijing", "code": "CN" },
+  { "name": "United States", "capital": "Washington", "code": "US" },
+  { "name": "Zimbabwe", "capital": "Harare", "code": "ZW" }
+]

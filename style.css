@@ -49,6 +49,26 @@ body {
 }
 -align: center;
 }
+.fav {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.fav.active {
+  color: gold;
+}
+.sidebar li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar img {
+  width: 20px;
+  height: auto;
+}
 
 .country-card h4 {
   margin: 0;
@@ -296,4 +316,29 @@ body {
   border-radius: 8px;
   border: none;
   margin-bottom: 0.75rem;
+}
+
+.favorites {
+  margin-bottom: 1rem;
+}
+
+.favorites li {
+  background: rgba(255,215,0,0.15);
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+}
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100%;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
 }
