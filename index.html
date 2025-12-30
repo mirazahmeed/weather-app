@@ -1,62 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Weather App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
+<head>
+    <meta charset="UTF-8" />
+    <title>Weather App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-<header class="header">
-  <button id="menuBtn">☰</button>
-  <h1>🌤 Weather</h1>
-  <p class="subtitle">Real-time local & global weather</p>
-</header>
+    <header class="header">
+        <button id="menuBtn">☰</button>
+        <h1>🌤 Weather</h1>
+        <p class="subtitle">Real-time local & global weather</p>
+    </header>
 
-<div class="app-layout">
+    <div class="app-layout">
 
-  <aside class="sidebar">
-    <input id="countrySearch" class="country-search" placeholder="Search country..." />
+        <aside class="sidebar">
+            <input id="countrySearch" class="country-search" placeholder="Search country..." />
 
-    <div class="favorites">
-      <h4>⭐ Favorites</h4>
-      <ul id="favoriteList"></ul>
+            <div class="favorites">
+                <h4>⭐ Favorites</h4>
+                <ul id="favoriteList"></ul>
+            </div>
+
+            <ul id="countryList"></ul>
+        </aside>
+
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <main class="main-content">
+
+            <section class="top-countries-wrapper">
+                <h3>Around the World</h3>
+                <div id="topCountries" class="top-countries"></div>
+            </section>
+
+            <section class="card search-card">
+                <input id="locationInput" placeholder="Search city..." autocomplete="off" />
+                <button id="searchBtn">Search</button>
+                <div class="autocomplete" id="autocomplete"></div>
+            </section>
+
+
+            <section id="weatherCard" class="card weather-card">
+                <h2 id="location">---</h2>
+                <div class="temperature"><span id="temp">--</span>°C</div>
+                <p id="condition">---</p>
+                <p>Feels Like: <span id="feelsLike">--</span>°C</p>
+                <p>Wind: <span id="wind">--</span></p>
+                <p id="aqi" class="aqi">AQI: --</p>
+                <p id="time" class="time">---</p>
+            </section>
+
+        </main>
     </div>
 
-    <ul id="countryList"></ul>
-  </aside>
+    <div id="locationMessage" class="location-message">
+        Location access is turned off. Showing default weather.
+    </div>
 
-  <main class="main-content">
-    <section class="top-countries-wrapper">
-      <h3>Around the World</h3>
-      <div id="topCountries" class="top-countries"></div>
-    </section>
-
-    <section class="card search-card">
-      <input id="locationInput" placeholder="Search city..." />
-      <button id="searchBtn">Search</button>
-    </section>
-
-    <section id="weatherCard" class="card weather-card">
-      <h2 id="location">---</h2>
-      <div class="temperature"><span id="temp">--</span>°C</div>
-      <p id="condition">---</p>
-      <p>Feels Like: <span id="feelsLike">--</span>°C</p>
-      <p>Wind: <span id="wind">--</span></p>
-      <p id="aqi" class="aqi">AQI: --</p>
-      <p id="time" class="time">---</p>
-    </section>
-  </main>
-</div>
-
-<div id="locationMessage" class="location-message">
-  Location access is turned off. Showing default weather.
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>

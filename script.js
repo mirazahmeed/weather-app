@@ -1,286 +1,238 @@
 /* ================================
-   CONFIG
+   CONFIG & DOM
 ================================ */
 const API_KEY = "5383f81661d64232ab3151618253012";
-const locationMessage = document.getElementById("locationMessage");
 
-/* ================================
-   GLOBAL STATE
-================================ */
+const countrySearch = document.getElementById("countrySearch");
 const countryListEl = document.getElementById("countryList");
+const favoriteListEl = document.getElementById("favoriteList");
 const topCountriesEl = document.getElementById("topCountries");
+const overlay = document.getElementById("sidebarOverlay");
+const sidebar = document.querySelector(".sidebar");
 
-let allCountries = [];
-let visibleCount = 30;
-let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+const locationInput = document.getElementById("locationInput");
+const searchBtn = document.getElementById("searchBtn");
+const autocompleteEl = document.getElementById("autocomplete");
 
 /* ================================
-   LOAD COUNTRIES (JSON + LAZY)
+   STATE
+================================ */
+let allCountries = [];
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+let visibleCount = 30;
+
+let suggestions = [];
+let activeIndex = -1;
+
+/* ================================
+   LOAD COUNTRIES
 ================================ */
 async function loadCountriesJSON() {
-    try {
-        const res = await fetch("countries.json");
-        allCountries = await res.json();
-        renderCountries(true);
-    } catch (err) {
-        console.error("Failed to load countries.json");
-    }
+  const res = await fetch("countries.json");
+  allCountries = await res.json();
+  renderCountries();
+  renderFavorites();
 }
 
-function renderCountries(reset = false) {
-    if (reset) countryListEl.innerHTML = "";
+/* ================================
+   RENDER COUNTRIES (SIDEBAR)
+================================ */
+function renderCountries(filter = "") {
+  countryListEl.innerHTML = "";
 
-    const slice = allCountries.slice(0, visibleCount);
+  const list = filter
+    ? allCountries.filter(c =>
+        c.name.toLowerCase().includes(filter.toLowerCase())
+      )
+    : allCountries;
 
-    slice.forEach(({ name, capital, code }) => {
-        if (document.getElementById(code)) return;
-
-        const li = document.createElement("li");
-        li.id = code;
-        li.innerHTML = `
-      <img src="https://flagcdn.com/w20/${code.toLowerCase()}.png" />
-      <span>${name}</span>
-      <button class="fav ${
-          favorites.includes(name) ? "active" : ""
-      }">⭐</button>
+  list.slice(0, visibleCount).forEach(c => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <img src="https://flagcdn.com/w20/${c.code.toLowerCase()}.png">
+      <span>${c.name}</span>
+      <button class="fav ${favorites.includes(c.name) ? "active" : ""}">⭐</button>
     `;
-
-        li.addEventListener("click", () => fetchWeatherByCity(capital));
-        countryListEl.appendChild(li);
-    });
+    li.onclick = () => fetchWeather(c.capital);
+    countryListEl.appendChild(li);
+  });
 }
 
-/* LAZY LOAD ON SCROLL */
-countryListEl.addEventListener("scroll", () => {
-    if (
-        countryListEl.scrollTop + countryListEl.clientHeight >=
-        countryListEl.scrollHeight - 10
-    ) {
-        visibleCount += 20;
-        renderCountries();
-    }
+/* ================================
+   COUNTRY SEARCH (SIDEBAR)
+================================ */
+countrySearch.addEventListener("input", e => {
+  visibleCount = 30;
+  renderCountries(e.target.value);
 });
 
 /* ================================
    FAVORITES
 ================================ */
-countryListEl.addEventListener("click", (e) => {
-    if (e.target.classList.contains("fav")) {
-        e.stopPropagation();
-        const country =
-            e.target.parentElement.querySelector("span").textContent;
+countryListEl.addEventListener("click", e => {
+  if (!e.target.classList.contains("fav")) return;
 
-        if (favorites.includes(country)) {
-            favorites = favorites.filter((c) => c !== country);
-        } else {
-            favorites.push(country);
-        }
+  e.stopPropagation();
+  const name = e.target.previousElementSibling.textContent;
 
-        localStorage.setItem("favorites", JSON.stringify(favorites));
-        e.target.classList.toggle("active");
-    }
+  favorites.includes(name)
+    ? (favorites = favorites.filter(f => f !== name))
+    : favorites.push(name);
+
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+  renderCountries();
+  renderFavorites();
 });
-
-let countryIndex = {};
-
-function buildCountryIndex() {
-    allCountries.forEach((c) => {
-        countryIndex[c.name.toLowerCase()] = c;
-    });
-}
-
-/* ================================
-   PIN CURRENT COUNTRY
-================================ */
-function pinUserCountry(countryName) {
-    const li = [...document.querySelectorAll(".sidebar li")].find(
-        (el) => el.querySelector("span")?.textContent === countryName
-    );
-
-    if (li) {
-        li.classList.add("active");
-        li.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-}
-
-/* ================================
-   TOP COUNTRIES (RANDOM)
-================================ */
-const randomCities = [
-    "London",
-    "New York",
-    "Tokyo",
-    "Paris",
-    "Dubai",
-    "Sydney",
-    "Berlin",
-    "Toronto",
-    "Singapore",
-    "Rome",
-];
-
-function getRandomCities(list, count) {
-    return [...list].sort(() => 0.5 - Math.random()).slice(0, count);
-}
-
-async function loadTopCountries() {
-    const selected = getRandomCities(randomCities, 5);
-    topCountriesEl.innerHTML = "";
-
-    for (const city of selected) {
-        const res = await fetch(
-            `http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}`
-        );
-        const data = await res.json();
-
-        const card = document.createElement("div");
-        card.className = "country-card";
-        card.innerHTML = `
-      <h4>${data.location.name}</h4>
-      <span>${data.current.temp_c}°C</span>
-      <p>${data.current.condition.text}</p>
-    `;
-
-        card.addEventListener("click", () => updateUI(data));
-        topCountriesEl.appendChild(card);
-    }
-}
-
-/* ================================
-   SEARCH
-================================ */
-const locationInput = document.getElementById("locationInput");
-const searchBtn = document.getElementById("searchBtn");
-
-searchBtn.addEventListener("click", () => {
-    const city = locationInput.value.trim();
-    if (!city) return alert("Enter a location");
-    fetchWeatherByCity(city);
-});
-
-async function fetchWeatherByCity(city) {
-    const res = await fetch(
-        `http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}&aqi=yes`
-    );
-    const data = await res.json();
-
-    if (data.error) {
-        alert("Location not found");
-        return;
-    }
-
-    updateUI(data);
-}
-
-/* ================================
-   GEOLOCATION
-================================ */
-function showLocationMessage() {
-    locationMessage?.classList.add("show");
-}
-
-function hideLocationMessage() {
-    locationMessage?.classList.remove("show");
-}
-
-function loadUserLocationWeather() {
-    if (!navigator.geolocation) {
-        showLocationMessage();
-        fetchWeatherByCity("London");
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-            hideLocationMessage();
-            const { latitude, longitude } = pos.coords;
-
-            const res = await fetch(
-                `http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${latitude},${longitude}&aqi=yes`
-            );
-            const data = await res.json();
-            updateUI(data);
-        },
-        () => {
-            showLocationMessage();
-            fetchWeatherByCity("London");
-        }
-    );
-}
-countrySearch.addEventListener("input", (e) => {
-    const query = e.target.value.toLowerCase();
-    countryListEl.innerHTML = "";
-
-    Object.keys(countryIndex)
-        .filter((name) => name.includes(query))
-        .slice(0, 30)
-        .forEach((key) => {
-            const { name, capital, code } = countryIndex[key];
-
-            const li = document.createElement("li");
-            li.innerHTML = `
-        <img src="https://flagcdn.com/w20/${code.toLowerCase()}.png" />
-        <span>${name}</span>
-      `;
-            li.onclick = () => fetchWeatherByCity(capital);
-            countryListEl.appendChild(li);
-        });
-});
-
-/* ================================
-   UPDATE UI
-================================ */
-function updateUI(data) {
-    document.getElementById("weatherCard").style.display = "block";
-    document.getElementById(
-        "location"
-    ).textContent = `${data.location.name}, ${data.location.country}`;
-    document.getElementById("temp").textContent = data.current.temp_c;
-    document.getElementById("feelsLike").textContent = data.current.feelslike_c;
-    document.getElementById("condition").textContent =
-        data.current.condition.text;
-    document.getElementById(
-        "wind"
-    ).textContent = `${data.current.wind_kph} km/h ${data.current.wind_dir}`;
-
-    const aqi = data.current.air_quality?.["us-epa-index"];
-    const aqiText = aqi <= 2 ? "Good" : aqi <= 4 ? "Moderate" : "Unhealthy";
-    const aqiEl = document.getElementById("aqi");
-    aqiEl.textContent = `AQI: ${aqiText}`;
-    aqiEl.style.color = aqi <= 2 ? "green" : aqi <= 4 ? "orange" : "red";
-
-    document.getElementById("time").textContent = new Date().toLocaleString();
-
-    pinUserCountry(data.location.country);
-}
-const favoriteListEl = document.getElementById("favoriteList");
 
 function renderFavorites() {
-    favoriteListEl.innerHTML = "";
+  favoriteListEl.innerHTML = "";
+  favorites.forEach(name => {
+    const c = allCountries.find(x => x.name === name);
+    if (!c) return;
 
-    favorites.forEach((name) => {
-        const country = allCountries.find((c) => c.name === name);
-        if (!country) return;
-
-        const li = document.createElement("li");
-        li.textContent = country.name;
-        li.onclick = () => fetchWeatherByCity(country.capital);
-        favoriteListEl.appendChild(li);
-    });
-}
-document.getElementById("menuBtn").onclick = () => {
-    document.querySelector(".sidebar").classList.toggle("open");
-};
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
+    const li = document.createElement("li");
+    li.textContent = name;
+    li.onclick = () => fetchWeather(c.capital);
+    favoriteListEl.appendChild(li);
+  });
 }
 
 /* ================================
-INIT (ONLY ONCE)
+   CITY AUTOCOMPLETE
+================================ */
+locationInput.addEventListener("input", async e => {
+  const query = e.target.value.trim();
+  activeIndex = -1;
+
+  if (query.length < 2) {
+    autocompleteEl.style.display = "none";
+    return;
+  }
+
+  const res = await fetch(
+    `http://api.weatherapi.com/v1/search.json?key=${API_KEY}&q=${query}`
+  );
+  suggestions = await res.json();
+
+  if (!suggestions.length) {
+    autocompleteEl.style.display = "none";
+    return;
+  }
+
+  autocompleteEl.innerHTML = suggestions
+    .slice(0, 6)
+    .map(
+      s => `
+      <div>
+        ${s.name}${s.region ? ", " + s.region : ""}, ${s.country}
+      </div>
+    `
+    )
+    .join("");
+
+  autocompleteEl.style.display = "block";
+});
+
+autocompleteEl.addEventListener("click", e => {
+  if (!e.target.matches("div")) return;
+
+  const text = e.target.textContent;
+  locationInput.value = text;
+  autocompleteEl.style.display = "none";
+  fetchWeather(text);
+});
+
+/* Keyboard navigation */
+locationInput.addEventListener("keydown", e => {
+  const items = autocompleteEl.querySelectorAll("div");
+  if (!items.length) return;
+
+  if (e.key === "ArrowDown") {
+    activeIndex = (activeIndex + 1) % items.length;
+  } else if (e.key === "ArrowUp") {
+    activeIndex = (activeIndex - 1 + items.length) % items.length;
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (activeIndex >= 0) items[activeIndex].click();
+    return;
+  } else {
+    return;
+  }
+
+  items.forEach((item, i) =>
+    item.classList.toggle("active", i === activeIndex)
+  );
+});
+
+/* Close autocomplete on outside click */
+document.addEventListener("click", e => {
+  if (!e.target.closest(".search-card")) {
+    autocompleteEl.style.display = "none";
+  }
+});
+
+/* ================================
+   CITY SEARCH BUTTON
+================================ */
+searchBtn.addEventListener("click", () => {
+  const city = locationInput.value.trim();
+  if (!city) return alert("Enter a city name");
+  fetchWeather(city);
+});
+
+/* ================================
+   WEATHER FETCH
+================================ */
+async function fetchWeather(city) {
+  const res = await fetch(
+    `http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}&aqi=yes`
+  );
+  const data = await res.json();
+
+  updateUI(data);
+
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+  }
+}
+
+function updateUI(data) {
+  document.getElementById("weatherCard").style.display = "block";
+  document.getElementById("location").textContent =
+    `${data.location.name}, ${data.location.country}`;
+  document.getElementById("temp").textContent = data.current.temp_c;
+  document.getElementById("feelsLike").textContent = data.current.feelslike_c;
+  document.getElementById("condition").textContent =
+    data.current.condition.text;
+  document.getElementById("wind").textContent =
+    `${data.current.wind_kph} km/h ${data.current.wind_dir}`;
+  document.getElementById("time").textContent =
+    new Date().toLocaleString();
+}
+
+/* ================================
+   SIDEBAR TOGGLE (MOBILE)
+================================ */
+document.getElementById("menuBtn").onclick = () => {
+  sidebar.classList.add("open");
+  overlay.classList.add("show");
+};
+
+overlay.onclick = () => {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+};
+
+/* ================================
+   INIT
 ================================ */
 loadCountriesJSON();
-loadUserLocationWeather();
-loadTopCountries();
-renderFavorites();
+fetchWeather("London");
 
-buildCountryIndex();
+/* ================================
+   PWA
+================================ */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}

@@ -14,6 +14,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  animation: fadeIn 0.8s ease forwards;
 }
 
 .header {
@@ -23,68 +24,67 @@ body {
   text-align: center;
 }
 
-/* TOP COUNTRIES */
-.top-countries {
+.app-layout {
   display: flex;
-  gap: .75rem;
-  padding: .75rem;
-  overflow-x: auto;
+  min-height: calc(100vh - 80px);
 }
 
-.country-card {
-  min-width: 140px;
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(10px);
-  padding: .75rem;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.12);
-  text-align: center;
+.sidebar {
+  width: 240px;
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(14px);
+  padding: 1rem;
+  border-right: 1px solid rgba(255,255,255,0.4);
+  overflow-y: auto;
+}
+
+.country-search {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 0.75rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.6rem;
+  margin-bottom: 0.4rem;
+  border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: 0.25s;
 }
 
-.country-card:hover {
-  transform: translateY(-6px) scale(1.05);
-  box-shadow: 0 18px 35px rgba(0,0,0,.18);
+.sidebar li:hover {
+  background: linear-gradient(135deg, #1e88e5, #42a5f5);
+  color: white;
 }
--align: center;
+
+.sidebar img {
+  width: 20px;
 }
+
 .fav {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
 }
 
 .fav.active {
   color: gold;
 }
-.sidebar li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
-.sidebar img {
-  width: 20px;
-  height: auto;
-}
-
-.country-card h4 {
-  margin: 0;
-  font-size: .95rem;
-}
-
-.country-card span {
-  font-size: 1.3rem;
-  font-weight: bold;
-}
-
-/* MAIN */
-.container {
+.main-content {
+  flex: 1;
   padding: 1rem;
-  max-width: 500px;
-  margin: auto;
 }
 
 .card {
@@ -95,239 +95,45 @@ body {
   margin-bottom: 1rem;
 }
 
-.search-card {
-  display: flex;
-  gap: .5rem;
-}
-
-.search-card input {
-  flex: 1;
-  padding: .6rem;
-  font-size: 1rem;
-}
-
-.search-card button {
-  padding: .6rem 1rem;
-  background: linear-gradient(135deg, #1e88e5, #42a5f5);
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 999px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.search-card button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(30,136,229,.4);
-}
-
-.search-card button:active {
-  transform: scale(0.96);
-}
-
-
 .weather-card {
-  text-align: center;
   display: none;
-  animation: slideUp 0.6s ease forwards;
+  text-align: center;
 }
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(25px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+
 .temperature {
   font-size: 3rem;
-  margin: .5rem 0;
 }
 
-.aqi {
-  font-weight: bold;
-}
-
-.time {
-  margin-top: .5rem;
-  font-size: .9rem;
-  color: gray;
-}
-/* LOCATION MESSAGE */
 .location-message {
   position: fixed;
   bottom: -50px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.85);
-  color: #fff;
+  color: white;
   padding: 0.6rem 1rem;
   border-radius: 999px;
-  font-size: 0.85rem;
-  opacity: 0;
-  transition: all 0.4s ease;
-  z-index: 1000;
+  transition: 0.4s;
 }
 
 .location-message.show {
   bottom: 15px;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.sidebar-overlay.show {
   opacity: 1;
+  pointer-events: auto;
 }
 
-body {
-  animation: fadeIn 0.8s ease forwards;
-}
-.temperature {
-  font-size: 3rem;
-  margin: .5rem 0;
-  animation: floatTemp 3s ease-in-out infinite;
-}
-.country-card {
-  animation: fadeUp 0.6s ease forwards;
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes floatTemp {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-/* LAYOUT */
-.app-layout {
-  display: flex;
-  min-height: calc(100vh - 80px);
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 220px;
-  background: rgba(255,255,255,0.3);
-  backdrop-filter: blur(14px);
-  padding: 1rem;
-  border-right: 1px solid rgba(255,255,255,0.4);
-}
-
-.sidebar h3 {
-  margin-bottom: 0.75rem;
-  font-size: 1rem;
-  color: #0f172a;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar li {
-  padding: 0.6rem 0.75rem;
-  margin-bottom: 0.4rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.25s ease;
-}
-
-.sidebar li:hover {
-  background: linear-gradient(135deg, #1e88e5, #42a5f5);
-  color: white;
-  transform: translateX(6px);
-}
-
-.sidebar li.active {
-  background: #1e88e5;
-  color: white;
-  font-weight: 600;
-}
-
-/* MAIN CONTENT */
-.main-content {
-  flex: 1;
-  padding: 1rem;
-}
-
-/* MOBILE RESPONSIVE */
-@media (max-width: 768px) {
-  .app-layout {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    display: flex;
-    overflow-x: auto;
-  }
-
-  .sidebar ul {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .sidebar li {
-    white-space: nowrap;
-    margin-bottom: 0;
-  }
-}
-.sidebar li {
-  animation: slideInLeft 0.4s ease both;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-.sidebar {
-  width: 240px;
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
-}
-.country-search {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: none;
-  margin-bottom: 0.75rem;
-}
-
-.favorites {
-  margin-bottom: 1rem;
-}
-
-.favorites li {
-  background: rgba(255,215,0,0.15);
-  border-radius: 8px;
-  padding: 6px;
-  cursor: pointer;
-}
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
@@ -341,4 +147,36 @@ body {
   .sidebar.open {
     left: 0;
   }
+}
+/* Hide menu button on medium & large screens */
+@media (min-width: 769px) {
+  #menuBtn {
+    display: none;
+  }
+}
+.autocomplete {
+  position: absolute;
+  background: white;
+  width: calc(100% - 2rem);
+  max-height: 240px;
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.15);
+  margin-top: 0.5rem;
+  z-index: 100;
+  display: none;
+}
+
+.autocomplete div {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.autocomplete div:hover,
+.autocomplete div.active {
+  background: #f1f5f9;
+}
+.search-card {
+  position: relative;
 }
